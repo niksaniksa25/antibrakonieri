@@ -1,0 +1,137 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0b1220;
+    color: white;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    font-size: 32px;
+    color: #00ff88;
+}
+
+#status {
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+/* Dashboard */
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+
+.card {
+    background: #162235;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,255,136,0.15);
+    transition: 0.3s;
+}
+
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+
+.card h2 {
+    font-size: 18px;
+    color: #00ff88;
+    margin-bottom: 15px;
+}
+
+
+.card p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+
+
+/* Map */
+
+.map-title,
+.history-title {
+    margin: 30px 0 15px;
+    color: #00ff88;
+}
+
+
+#map {
+    width: 100%;
+    height: 450px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+
+
+/* Table */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #162235;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+th {
+    background: #00aa66;
+    padding: 12px;
+}
+
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #26344a;
+}
+
+
+tr:hover {
+    background: #20334d;
+}
+
+
+
+/* Mobile */
+
+@media(max-width:600px){
+
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    #map {
+        height:300px;
+    }
+
+    .card p {
+        font-size:20px;
+    }
+
+}
