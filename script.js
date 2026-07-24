@@ -18,7 +18,7 @@ async function getData() {
 
   try {
     const requestUrl =
-      ${API_URL}?action=read&t=${Date.now()};
+     `${API_URL}?action=read&t=${Date.now()}`;
 
     const response = await fetch(requestUrl, {
       cache: "no-store",
@@ -49,7 +49,7 @@ async function getData() {
     // ბატარეა
     document.getElementById("battery").textContent =
       data.battery
-        ? ${data.battery} %
+        ? `${data.battery} %`
         : "-- %";
 
     // წყალში სიგნალი
@@ -59,7 +59,7 @@ async function getData() {
     // სიხშირე
     document.getElementById("frequency").textContent =
       data.frequency
-        ? ${data.frequency} Hz
+        ? `${data.frequency} Hz`
         : "-- Hz";
 
     // განედი
@@ -77,7 +77,7 @@ async function getData() {
     // მდებარეობა
     document.getElementById("location").textContent =
       data.latitude && data.longitude
-        ? ${data.latitude}, ${data.longitude}
+        ? `${data.latitude}, ${data.longitude}`
         : "--";
 
     updateMap(data);
@@ -190,8 +190,8 @@ async function searchLocation() {
 
   try {
     const searchUrl =
-      https://nominatim.openstreetmap.org/search +
-      ?format=json&limit=1&q=${encodeURIComponent(place)};
+      `https://nominatim.openstreetmap.org/search` +
+      `?format=json&limit=1&q=${encodeURIComponent(place)}`;
 
     const response = await fetch(searchUrl);
     const results = await response.json();
