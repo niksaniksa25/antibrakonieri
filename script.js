@@ -26,7 +26,7 @@ async function getData() {
     });
 
     if (!response.ok) {
-      throw new Error(HTTP შეცდომა: ${response.status});
+      throw new Error("HTTP შეცდომა: " + response.status);
     }
 
     const result = await response.json();
