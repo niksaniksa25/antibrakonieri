@@ -1,8 +1,7 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbzZ_B_-UFAi4emDVsI9_PAnQNsw7LOMv-2RyT3c8HZGqRx20uKUVe4Z-DmANOePwn1-/exec";
 
-// რუკის შექმნა
-const map = L.map("map").setView([41.7151, 44.8271], 8);
+const map = L.map("map").setView([41.9234, 41.9876], 13);
 
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
@@ -13,37 +12,34 @@ let marker = null;
 let history = [];
 
 async function getData() {
-  const statusElement = document.getElementById("status");
+  const status = document.getElementById("status");
 
   try {
-    const response = await fetch(${API_URL}?action=read, {
-      cache: "no-store"
-    });
+    const response = await fetch(${API_URL}?action=read&t=${Date.now()});
 
     if (!response.ok) {
       throw new Error(HTTP შეცდომა: ${response.status});
     }
 
     const result = await response.json();
+    console.log("მიღებული პასუხი:", result);
 
     if (!result.ok || !result.data) {
-      throw new Error("მონაცემები ვერ მოიძებნა");
+      throw new Error("მონაცემი არ მოიძებნა");
     }
 
     const data = result.data;
 
-    // კავშირის სტატუსი
-    statusElement.textContent = "🟢 Online";
+    status.textContent = "🟢 Online";
 
-    // საინფორმაციო ბარათები
     document.getElementById("battery").textContent =
-      data.battery ? ${data.battery} % : "-- %";
+      ${data.battery || "--"} %;
 
     document.getElementById("signal").textContent =
       data.signal || "--";
 
     document.getElementById("frequency").textContent =
-      data.frequency ? ${data.frequency} Hz : "-- Hz";
+      ${data.frequency || "--"} Hz;
 
     document.getElementById("latitude").textContent =
       data.latitude || "--";
@@ -54,50 +50,42 @@ async function getData() {
     document.getElementById("time").textContent =
       data.time || "--";
 
-    if (data.latitude && data.longitude) {
-      document.getElementById("location").textContent =
-        ${data.latitude}, ${data.longitude};
-    } else {
-      document.getElementById("location").textContent = "--";
-    }
+    document.getElementById("location").textContent =
+      data.latitude && data.longitude
+        ? ${data.latitude}, ${data.longitude}
+        : "--";
 
-    // რუკის განახლება
-    const latitude = Number(data.latitude);
-    const longitude = Number(data.longitude);
+    const lat = Number(data.latitude);
+    const lon = Number(data.longitude);
 
-    if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
-      if (marker === null) {
-        marker = L.marker([latitude, longitude])
-          .addTo(map)
-          .bindPopup("სიგნალის დეტექტორი");
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+      if (!marker) {
+        marker = L.marker([lat, lon]).addTo(map);
       } else {
-        marker.setLatLng([latitude, longitude]);
+        marker.setLatLng([lat, lon]);
       }
 
       marker
         .bindPopup(
-          `<strong>სიგნალი:</strong> ${data.signal}<br>
-           <strong>ბატარეა:</strong> ${data.battery}%<br>
-           <strong>განახლება:</strong> ${data.time}`
+          `<b>სიგნალი:</b> ${data.signal}<br>
+           <b>ბატარეა:</b> ${data.battery}%<br>
+           <b>დრო:</b> ${data.time}`
         )
         .openPopup();
 
-      map.setView([latitude, longitude], 15);
+      map.setView([lat, lon], 15);
     }
 
     addHistory(data);
 
   } catch (error) {
-    console.error(error);
-    statusElement.textContent = "🔴 Offline";
+    console.error("შეცდომა:", error);
+    status.textContent = "🔴 Offline";
   }
 }
 
 function addHistory(data) {
-  const latest = history[0];
-
-  // ერთი და იგივე ჩანაწერი ყოველ 5 წამში არ დაემატოს
-  if (latest && latest.time === data.time) {
+  if (history.length > 0 && history[0].time === data.time) {
     return;
   }
 
@@ -118,6 +106,11 @@ function addHistory(data) {
 
 function showHistory() {
   const table = document.getElementById("history");
+
+  if (!table) {
+    return;
+  }
+
   table.innerHTML = "";
 
   history.forEach(item => {
@@ -135,40 +128,33 @@ function showHistory() {
   });
 }
 
-// ადგილის ძებნა OpenStreetMap-ით
 async function searchLocation() {
-  const searchInput = document.getElementById("search");
-  const place = searchInput.value.trim();
+  const input = document.getElementById("search");
 
-  if (!place) {
+  if (!input || !input.value.trim()) {
     return;
   }
 
   try {
     const url =
-      https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(place)};
+      https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(input.value.trim())};
 
     const response = await fetch(url);
     const results = await response.json();
 
-    if (results.length === 0) {
+    if (!results.length) {
       alert("ადგილი ვერ მოიძებნა");
       return;
     }
 
-    const latitude = Number(results[0].lat);
-    const longitude = Number(results[0].lon);
-
-    map.setView([latitude, longitude], 15);
-
+    map.setView(
+      [Number(results[0].lat), Number(results[0].lon)],
+      15
+    );
   } catch (error) {
     console.error(error);
-    alert("ძებნა ვერ შესრულდა");
   }
 }
 
-// მონაცემის პირველად მიღება
 getData();
-
-// განახლება ყოველ 5 წამში
 setInterval(getData, 5000);
